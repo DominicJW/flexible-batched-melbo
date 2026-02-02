@@ -50,33 +50,33 @@ def make_hook_fn(steering_vectors,prompt_indexes,token_indexes):
 from contextlib import contextmanager
 @contextmanager
 def steer(model_layers,source_layers,steering_vectors_all_layers,prompt_indexes_all_layers,token_indexes_all_layers):
-'''
-    source_layers [int] len:num_source_layers
-    steering_vectors_all_layers [shape:(num_vecs_in_layer,hs)] len:num_source_layers (dtype = float like)
-    prompt_indexes_all_layers [shape: (num_vecs_in_layer,num_prompts)] len:num_source_layers (dtype = bool like)
-    token_indexes_all_layers [shape: (num_vecs_in_layer, num_prompts,max_seq_len)] len:num_source_layers (dtype = bool like)
-
-  usage:
-      input_text = ["Your input text goes here.","Your input text goes here.","Your input text goes here.","Your input text goes here."]
-      inputs = tokenizer(input_text, return_tensors="pt")      
-
-      hidden_size = model.config.hidden_size
-      num_prompts = inputs["input_ids"].shape[0]
-      
-      source_layers_ = [1,4,20]
-      num_vecs_in_layer = [4,7,8]
-      
-      steering_vectors_all_layers_ = [torch.rand((num_vecs_in_layer[i],hidden_size)) for i in range(len(source_layers_))]      
-      prompt_indexes_all_layers_ = [torch.rand((vec_tensor.shape[0],num_prompts))>0.0 for vec_tensor in steering_vectors_all_layers_]
-      
-      max_seq_len = inputs["input_ids"].shape[1]
-      # max_seq_len = 1 #to steer all tokens
-      
-      token_indexes_all_layers_ = [torch.rand((vec_tensor.shape[0],num_prompts,max_seq_len))>0.0 for vec_tensor in steering_vectors_all_layers_] #>0.0 means all tokens
+    '''
+        source_layers [int] len:num_source_layers
+        steering_vectors_all_layers [shape:(num_vecs_in_layer,hs)] len:num_source_layers (dtype = float like)
+        prompt_indexes_all_layers [shape: (num_vecs_in_layer,num_prompts)] len:num_source_layers (dtype = bool like)
+        token_indexes_all_layers [shape: (num_vecs_in_layer, num_prompts,max_seq_len)] len:num_source_layers (dtype = bool like)
     
-      with steer(model_layers,source_layers_,steering_vectors_all_layers_,prompt_indexes_all_layers_,token_indexes_all_layers_):
-          steered_outputs = model(**inputs)
-'''
+      usage:
+          input_text = ["Your input text goes here.","Your input text goes here.","Your input text goes here.","Your input text goes here."]
+          inputs = tokenizer(input_text, return_tensors="pt")      
+    
+          hidden_size = model.config.hidden_size
+          num_prompts = inputs["input_ids"].shape[0]
+          
+          source_layers_ = [1,4,20]
+          num_vecs_in_layer = [4,7,8]
+          
+          steering_vectors_all_layers_ = [torch.rand((num_vecs_in_layer[i],hidden_size)) for i in range(len(source_layers_))]      
+          prompt_indexes_all_layers_ = [torch.rand((vec_tensor.shape[0],num_prompts))>0.0 for vec_tensor in steering_vectors_all_layers_]
+          
+          max_seq_len = inputs["input_ids"].shape[1]
+          # max_seq_len = 1 #to steer all tokens
+          
+          token_indexes_all_layers_ = [torch.rand((vec_tensor.shape[0],num_prompts,max_seq_len))>0.0 for vec_tensor in steering_vectors_all_layers_] #>0.0 means all tokens
+        
+          with steer(model_layers,source_layers_,steering_vectors_all_layers_,prompt_indexes_all_layers_,token_indexes_all_layers_):
+              steered_outputs = model(**inputs)
+    '''
     assert len(source_layers) == len(token_indexes_all_layers) == len(prompt_indexes_all_layers) == len(steering_vectors_all_layers) #check no extra or missing layers
     assert all([prompt_indexes_all_layers[i].shape[0] == steering_vectors_all_layers[i].shape[0] for i in range(len(source_layers))]) #check number of vectors correct
     assert all([token_indexes_all_layers[i].shape[0:2] == prompt_indexes_all_layers[i].shape[0:2] for i in range(len(source_layers))]) #
