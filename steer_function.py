@@ -84,7 +84,6 @@ def steer(model_layers,source_layers,steering_vectors_all_layers,prompt_indexes_
     assert all([token_indexes_all_layers[0].shape[2] == token_indexes_all_layers[i].shape[2]  for i in range(len(source_layers))]) #same max_seq_len across layers
     
     
-    model_layers = model.model.language_model.layers
     handles = [0 for _ in source_layers]
     try:
         for i,layer_idx in enumerate(source_layers):
