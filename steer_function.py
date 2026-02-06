@@ -19,7 +19,10 @@ def make_hook_fn(steering_vectors,prompt_indexes,token_indexes):
         
         #apply the prompt mask (to only steer the prompts we are interested in) prompt mask is shape num_vec,num_prompt
         #steering_tensor_tok_indexed[i,j,:,:] some of these are naned as the output is not needed and are later indexed away
-        steering_tensor_tok_indexed[~prompt_indexes] = torch.nan
+        # steering_tensor_tok_indexed[~prompt_indexes] = torch.nan
+        #any nans in the tensor completely break the gradient computation resulting in a none grad
+
+        
         
         assert len(o.shape) == 3
         assert steering_tensor_tok_indexed.shape[2] == o.shape[1] or steering_tensor_tok_indexed.shape[2] == 1 #usage assertion
@@ -30,7 +33,7 @@ def make_hook_fn(steering_vectors,prompt_indexes,token_indexes):
         final_output = temp + steering_tensor_tok_indexed.to(device = o.device,dtype = o.dtype)
         
         #development assetion checking
-        assert torch.isnan(final_output[~prompt_indexes]).all().item()
+        # assert torch.isnan(final_output[~prompt_indexes]).all().item()
 
         if max_seq_len ==1 :
             assert (temp[prompt_indexes][~token_indexes[prompt_indexes].squeeze(-1)] == final_output[prompt_indexes][~token_indexes[prompt_indexes].squeeze(-1)]).all().item()
